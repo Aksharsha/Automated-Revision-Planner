@@ -1,0 +1,65 @@
+import datetime
+
+# Function to estimate how urgent a subject is based on days until the exam
+def urgency_level(days_left):
+    if days_left <= 3:
+        return 3  # High Urgency, study a lot now
+    elif days_left <= 7:
+        return 2  # Medium urgency, study regularly
+    else:
+        return 1  # Low priority, can be reviewed less often
+
+# This function makes the study plan considering time and priorities
+def plan_study(subject_list, subject_dates, hours_per_day):
+    today = datetime.date.today()  # Today's date
+    # Remove subjects whose exam date has already passed
+    remaining_subjects = [sub for sub in subject_list if subject_dates[sub] >= today]
+    
+    plan = []  # List to store the study plan
+
+    # daily schedule until the final exam
+    for study_day in range(0, 14):  # Plan for 14 days
+        study_date = today + datetime.timedelta(days=study_day)
+        day_name = study_date.strftime("%A")
+        date_str = study_date.strftime("%d %b %Y")
+
+        # Calculate priority based on how close the exam is for remaining subjects
+        priorities = {sub: urgency_level((subject_dates[sub] - study_date).days) for sub in remaining_subjects}
+
+        # Sort subjects by priority (highest urgency comes first)
+        sorted_subjects = sorted(remaining_subjects, key=lambda sub: -priorities[sub])
+
+        # Weekends - study fewer subjects (only 1 subject on Saturday and Sunday) because everyone deserves a break👍
+        if study_date.weekday() in [5, 6]:  # Saturday and Sunday
+            subjects_for_today = sorted_subjects[:1]  # Only 1 subject
+            time_per_subject = hours_per_day  # Give full time to 1 subject
+        else:
+            subjects_for_today = sorted_subjects[:2]  # 2 subjects per weekday
+            time_per_subject = hours_per_day / len(subjects_for_today)  # Split time
+
+        plan.append((day_name, date_str, subjects_for_today, time_per_subject))
+
+    return plan
+
+# Taking input from the user
+subjects = input("Enter the subjects (separate them with commas): ").split(',')
+exam_dates = {}
+
+# Ask user for the exam date of each subject
+for subject in subjects:
+    subject = subject.strip()
+    exam_date_input = input(f"When is the exam for {subject}? (Format: YYYY-MM-DD): ")
+    exam_dates[subject] = datetime.datetime.strptime(exam_date_input, "%Y-%m-%d").date()
+
+# Ask how many hours the user wants to study each day
+study_hours = float(input("How many hours per day would you like to study? "))
+
+# Generate the study plan based on the inputs
+study_plan = plan_study(subjects, exam_dates, study_hours)
+
+# Display the study plan
+print("\n📅 Here is your personalized study plan:\n")
+for day, date, subjects_for_today, time_per_subject in study_plan:
+    subjects_str = ", ".join(subjects_for_today)
+    print(f"{day}, {date}: {subjects_str} ({time_per_subject:.1f} hours each)")
+
