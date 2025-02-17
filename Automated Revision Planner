@@ -17,11 +17,11 @@ def plan_study(subject_list, subject_dates, hours_per_day):
     
     plan = []  # List to store the study plan
 
-    # daily schedule until the final exam
+    # Now we prepare a daily schedule until the final exam
     for study_day in range(0, 14):  # Plan for 14 days
         study_date = today + datetime.timedelta(days=study_day)
         day_name = study_date.strftime("%A")
-        date_str = study_date.strftime("%d %b %Y")
+        date_str = study_date.strftime("%Y %b %d")
 
         # Calculate priority based on how close the exam is for remaining subjects
         priorities = {sub: urgency_level((subject_dates[sub] - study_date).days) for sub in remaining_subjects}
@@ -48,8 +48,8 @@ exam_dates = {}
 # Ask user for the exam date of each subject
 for subject in subjects:
     subject = subject.strip()
-    exam_date_input = input(f"When is the exam for {subject}? (Format: YYYY-MM-DD): ")
-    exam_dates[subject] = datetime.datetime.strptime(exam_date_input, "%Y-%m-%d").date()
+    exam_date_input = input(f"When is the exam for {subject}? (Format: DD-MM-YYYY): ")
+    exam_dates[subject] = datetime.datetime.strptime(exam_date_input, "%d-%m-%Y").date()
 
 # Ask how many hours the user wants to study each day
 study_hours = float(input("How many hours per day would you like to study? "))
